@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "AngularProg": {
+    "ProgAngulkar": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "AngularProg:build:production"
+              "buildTarget": "ProgAngulkar:build:production"
             },
             "development": {
-              "buildTarget": "AngularProg:build:development"
+              "buildTarget": "ProgAngulkar:build:development"
             }
           },
           "defaultConfiguration": "development"
