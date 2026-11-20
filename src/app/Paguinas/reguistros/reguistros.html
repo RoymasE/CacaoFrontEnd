@@ -1,0 +1,28 @@
+<main class="page">
+  <div class="heading"><div><p class="eyebrow">RELACIONES</p><h1>Clientes</h1><p class="subheading">Personas y organizaciones que hacen crecer el negocio.</p></div><span class="count"><b>{{ customers.length }}</b> registros</span></div>
+  <div class="layout">
+    <section class="panel form-panel">
+      <div class="panel-title"><div><h2>{{ editingId === null ? 'Nuevo cliente' : 'Editar cliente' }}</h2><p>Completa la información de contacto.</p></div><span class="plus">{{ editingId === null ? '+' : '✎' }}</span></div>
+      <form (ngSubmit)="guardar()" #customerForm="ngForm">
+        <label for="nombreEmpresa">Empresa importadora <i>*</i></label><input id="nombreEmpresa" name="nombreEmpresa" [(ngModel)]="draft.nombreEmpresa" required maxlength="160" placeholder="Ej. Cacao del Norte GmbH">
+        <label for="paisDestino">País de destino <i>*</i></label><input id="paisDestino" name="paisDestino" [(ngModel)]="draft.paisDestino" required maxlength="100" placeholder="Alemania">
+        <label for="personaContacto">Persona de contacto</label><input id="personaContacto" name="personaContacto" [(ngModel)]="draft.personaContacto" maxlength="120" placeholder="Nombre de contacto">
+        <label for="email">Correo electrónico</label><input id="email" name="email" [(ngModel)]="draft.email" email maxlength="160" placeholder="compras@empresa.com">
+        <label for="telefono">Teléfono</label><input id="telefono" name="telefono" [(ngModel)]="draft.telefono" maxlength="40" placeholder="+51 999 000 000">
+        <label for="direccionFiscal">Dirección fiscal</label><input id="direccionFiscal" name="direccionFiscal" [(ngModel)]="draft.direccionFiscal" maxlength="240" placeholder="Dirección comercial">
+        <div class="actions"><button class="primary" type="submit" [disabled]="customerForm.invalid || guardando">{{ guardando ? 'Guardando…' : editingId === null ? 'Agregar cliente' : 'Guardar cambios' }} <span>→</span></button><button *ngIf="editingId !== null" type="button" class="cancel" (click)="cancelar()">Cancelar</button></div>
+      </form>
+      <p class="hint"><span>✦</span> Los campos con * son obligatorios.</p>
+    </section>
+    <section class="panel list-panel">
+      <div class="list-head"><div><h2>Directorio</h2><p>Consulta y administra tus contactos.</p></div><button class="refresh" type="button" (click)="recargar()" aria-label="Actualizar lista">↻</button></div>
+      <div class="search"><span>⌕</span><input name="search" [(ngModel)]="query" placeholder="Buscar cliente…"></div>
+      <div *ngIf="error" class="alert error" role="alert"><span>!</span><div>{{ error }}</div><button type="button" (click)="recargar()">Reintentar</button></div>
+      <div *ngIf="notice" class="alert success" role="status">✓ {{ notice }}</div>
+      <div *ngIf="cargando" class="empty"><span class="loader"></span><p>Conectando con el backend…</p></div>
+      <div *ngIf="!cargando && !error && filtrados.length === 0" class="empty"><span class="empty-icon">⌕</span><h3>{{ query ? 'Sin resultados' : 'Aún no hay clientes' }}</h3><p>{{ query ? 'Prueba con otro nombre o correo.' : 'Cuando agregues un cliente, aparecerá aquí.' }}</p></div>
+      <div *ngIf="!cargando && filtrados.length" class="table-wrap"><table><thead><tr><th>EMPRESA</th><th>DESTINO</th><th>CONTACTO</th><th>ESTADO</th><th></th></tr></thead><tbody><tr *ngFor="let customer of filtrados"><td><div class="person"><span class="initial">{{ customer.nombreEmpresa.charAt(0).toUpperCase() }}</span><span><b>{{ customer.nombreEmpresa }}</b><small>{{ customer.email }}</small></span></div></td><td>{{ customer.paisDestino || '—' }}</td><td>{{ customer.personaContacto || customer.telefono || '—' }}</td><td>{{ customer.activo === false ? 'Inactivo' : 'Activo' }}</td><td class="row-actions"><button type="button" title="Editar" (click)="editar(customer)">Editar</button><button type="button" title="Cambiar estado" (click)="eliminar(customer)">{{ customer.activo === false ? 'Activar' : 'Desactivar' }}</button></td></tr></tbody></table></div>
+      <div class="list-foot">Mostrando <b>{{ filtrados.length }}</b> de <b>{{ customers.length }}</b> clientes</div>
+    </section>
+  </div>
+</main>

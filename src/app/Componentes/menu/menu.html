@@ -1,0 +1,15 @@
+<header class="topbar">
+  <a class="brand" routerLink="/" aria-label="Cacao, inicio"><span class="brand-mark">C</span><span>cacao<span class="brand-dot">.</span></span></a>
+  <nav aria-label="Navegación principal">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Resumen</a>
+    <a routerLink="/lotes" routerLinkActive="active">Cosecha</a>
+    <a routerLink="/fermentacion" routerLinkActive="active">Fermentación</a>
+    <a routerLink="/secado" routerLinkActive="active">Secado</a>
+    <a routerLink="/productos" routerLinkActive="active">Inventario</a>
+    <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
+    <a routerLink="/proveedores" routerLinkActive="active">Proveedores</a>
+    <a routerLink="/pedidos" routerLinkActive="active">Ventas</a>
+    <a routerLink="/packing" routerLinkActive="active">Despachos</a>
+  </nav>
+  <span class="profile"><span class="avatar">{{ initials }}</span><a *ngIf="!username" routerLink="/acceso">Iniciar sesión</a><span *ngIf="username">{{ username }}</span><button *ngIf="username" type="button" (click)="logout()">Salir</button></span>
+</header>
