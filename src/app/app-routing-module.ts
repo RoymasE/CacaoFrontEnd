@@ -6,11 +6,12 @@ import { Reguistros } from './Paguinas/reguistros/reguistros';
 import { Detalles } from './Paguinas/detalles/detalles';
 import { Operacion } from './Paguinas/operacion/operacion';
 import { Productos } from './Paguinas/productos/productos';
+import { SinPermiso } from './Paguinas/auth/sin-permiso';
 
 const routes: Routes = [
-  { path: '', component: Detalles, canActivate: [authGuard] },
-  { path: 'clientes', component: Reguistros, canActivate: [authGuard] },
-  { path: 'productos', component: Productos, canActivate: [authGuard] },
+  { path: '', component: Detalles, canActivate: [authGuard], data: {page:'resumen'} },
+  { path: 'clientes', component: Reguistros, canActivate: [authGuard], data: {page:'clientes'} },
+  { path: 'productos', component: Productos, canActivate: [authGuard], data: {page:'productos'} },
   { path: 'proveedores', component: Operacion, canActivate: [authGuard], data: {page:'proveedores'} },
   { path: 'usuarios', component: Operacion, canActivate: [authGuard], data: {page:'usuarios'} },
   { path: 'lotes', component: Operacion, canActivate: [authGuard], data: {page:'lotes'} },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'packing', component: Operacion, canActivate: [authGuard], data: {page:'packing'} },
   { path: 'areas', component: Operacion, canActivate: [authGuard], data: {page:'areas'} },
   { path: 'balance', component: Operacion, canActivate: [authGuard], data: {page:'balance'} },
+  { path: 'sin-permiso', component: SinPermiso },
   { path: 'acceso', component: Auth },
   { path: '**', redirectTo: '' },
 ];

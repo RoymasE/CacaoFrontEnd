@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Api } from '../../Servicios/api';
+import { canWritePage } from '../../Servicios/roles';
 
 interface Field { key: string; label: string; type?: string; options?: string[]; }
 interface PageConfig { title: string; description: string; endpoint: string; fields?: Field[]; }
@@ -37,6 +38,7 @@ export class Operacion implements OnInit {
   loading = true; saving = false; error = ''; notice = ''; routeKey = ''; editingId: number | null = null;
   detail: Record<string, any> | null = null; lookupId = '';
   constructor(private route: ActivatedRoute, private api: Api) {}
+  canWrite(): boolean { return canWritePage(this.routeKey, localStorage.getItem('cacao_rol')); }
   ngOnInit(): void { this.route.data.subscribe(data => { this.routeKey = data['page']; this.config = pages[this.routeKey]; this.draft = {}; this.load(); }); }
   load(): void { this.loading = true; this.error = ''; this.api.get<Record<string, any>[] | Record<string, any>>(this.config.endpoint).subscribe({next: data => { this.rows = Array.isArray(data) ? data : data && typeof data === 'object' ? [data] : []; this.loading = false; }, error: e => { this.error = this.message(e); this.loading = false; }}); }
   save(): void {
@@ -56,6 +58,7 @@ export class Operacion implements OnInit {
   showDetail(row: Record<string, any>): void {
     const endpoints: Record<string,string> = {usuarios:'/usuarios',proveedores:'/proveedores',lotes:'/cosecha/lotes',cajones:'/cajones',pedidos:'/pedidos',packing:'/packing-list'};
     if (!endpoints[this.routeKey] || !row['id']) return;
+    if ((this.routeKey==='usuarios'||this.routeKey==='proveedores') && this.canWrite()) this.edit(row);
     this.api.get<Record<string,any>>(`${endpoints[this.routeKey]}/${row['id']}`).subscribe({next:data=>this.detail=data,error:e=>this.error=this.message(e)});
   }
   lookupLot(): void {

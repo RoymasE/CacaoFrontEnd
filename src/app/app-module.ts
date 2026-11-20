@@ -12,9 +12,10 @@ import { Detalles } from './Paguinas/detalles/detalles';
 import { Operacion } from './Paguinas/operacion/operacion';
 import { Auth } from './Paguinas/auth/auth';
 import { authInterceptor } from './Servicios/auth-interceptor';
+import { SinPermiso } from './Paguinas/auth/sin-permiso';
 
 @NgModule({
-  declarations: [App, Menu, Reguistros, Productos, Detalles, Operacion, Auth],
+  declarations: [App, Menu, Reguistros, Productos, Detalles, Operacion, Auth, SinPermiso],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(withInterceptors([authInterceptor]))],
   bootstrap: [App],
