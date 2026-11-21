@@ -1,60 +1,279 @@
-<main class="page">
-  <p class="eyebrow">OPERACIONES CACAO</p>
-  <div class="heading">
-    <div><h1>{{config.title}}</h1><p>{{config.description}}</p></div>
-    <button class="refresh" type="button" (click)="load()">Actualizar ↻</button>
-  </div>
-  <div class="notice" *ngIf="notice">{{notice}}</div>
-  <div class="error" *ngIf="error">{{error}} <button type="button" (click)="load()">Reintentar</button></div>
-
-  <section class="panel" *ngIf="config.fields?.length && canWrite()">
-    <h2>{{editingId!==null?'Editar registro':'Nuevo registro'}}</h2>
-    <form (ngSubmit)="save()">
-      <div class="fields">
-        <label *ngFor="let field of config.fields">{{field.label}}
-          <select *ngIf="field.type==='select'" [name]="field.key" [(ngModel)]="draft[field.key]" required>
-            <option value="">Seleccionar</option><option *ngFor="let option of field.options" [value]="option">{{option}}</option>
-          </select>
-          <textarea *ngIf="!field.type && field.key==='observaciones'" [name]="field.key" [(ngModel)]="draft[field.key]"></textarea>
-          <input *ngIf="field.type!=='select' && !( !field.type && field.key==='observaciones')" [name]="field.key" [type]="field.type || 'text'" [(ngModel)]="draft[field.key]" [required]="field.key!=='observaciones' && !(field.key==='password' && editingId!==null)">
-        </label>
+<main class="cacao-page-container op-page">
+  <!-- Top Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon-wrap" *ngIf="config.icon">
+        <span class="material-symbols-outlined">{{ config.icon }}</span>
       </div>
-      <button class="primary" [disabled]="saving">{{saving?'Guardando…':editingId!==null?'Guardar cambios':'Guardar registro'}}</button>
-      <button *ngIf="editingId!==null" type="button" (click)="editingId=null;draft={}">Cancelar</button>
+      <div>
+        <span class="cacao-badge badge-cacao">Operaciones · Cacao</span>
+        <h1 class="page-title">{{ config.title }}</h1>
+        <p class="page-subtitle">{{ config.description }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button 
+        *ngIf="config.fields?.length && canWrite()" 
+        type="button" 
+        class="btn btn-primary" 
+        (click)="showForm ? cancelForm() : startNew()">
+        <span class="material-symbols-outlined">{{ showForm ? 'close' : 'add' }}</span>
+        <span>{{ showForm ? 'Cerrar Formulario' : (editingId !== null ? 'Editar Registro' : 'Nuevo Registro') }}</span>
+      </button>
+      <button class="btn btn-secondary" type="button" (click)="load()" title="Recargar datos del servidor">
+        <span class="material-symbols-outlined" [class.spin]="loading">sync</span>
+        <span>Actualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="cacao-alert cacao-alert-success" *ngIf="notice">
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>{{ notice }}</span>
+  </div>
+
+  <div class="cacao-alert cacao-alert-error" *ngIf="error">
+    <span class="material-symbols-outlined">error</span>
+    <span>{{ error }}</span>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="load()" style="margin-left: auto;">Reintentar</button>
+  </div>
+
+  <!-- Form Section -->
+  <section class="cacao-card form-panel" *ngIf="config.fields?.length && canWrite() && showForm">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <span class="material-symbols-outlined">{{ editingId !== null ? 'edit_note' : 'add_circle' }}</span>
+        <h2>{{ editingId !== null ? 'Editar Registro' : 'Crear Nuevo Registro' }}</h2>
+      </div>
+      <button type="button" class="btn-close-panel" (click)="cancelForm()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <form (ngSubmit)="save()" class="op-form">
+      <div class="fields-grid">
+        <div class="field-item" *ngFor="let field of config.fields">
+          <label [for]="field.key">
+            {{ field.label }}
+            <span class="req" *ngIf="field.key !== 'observaciones' && !(field.key === 'password' && editingId !== null)">*</span>
+          </label>
+
+          <select 
+            *ngIf="field.type === 'select'" 
+            [id]="field.key" 
+            [name]="field.key" 
+            [(ngModel)]="draft[field.key]" 
+            required 
+            class="form-select">
+            <option value="">Seleccionar opción...</option>
+            <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+          </select>
+
+          <textarea 
+            *ngIf="!field.type && field.key === 'observaciones'" 
+            [id]="field.key" 
+            [name]="field.key" 
+            [(ngModel)]="draft[field.key]" 
+            rows="2" 
+            class="form-textarea"
+            placeholder="Anotaciones u observaciones..."></textarea>
+
+          <input 
+            *ngIf="field.type !== 'select' && !( !field.type && field.key === 'observaciones')" 
+            [id]="field.key" 
+            [name]="field.key" 
+            [type]="field.type || 'text'" 
+            [(ngModel)]="draft[field.key]" 
+            [required]="field.key !== 'observaciones' && !(field.key === 'password' && editingId !== null)"
+            class="form-input"
+            [placeholder]="field.label" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" [disabled]="saving">
+          <span class="material-symbols-outlined">{{ saving ? 'hourglass_top' : 'save' }}</span>
+          <span>{{ saving ? 'Guardando datos...' : (editingId !== null ? 'Guardar Cambios' : 'Registrar') }}</span>
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+      </div>
     </form>
   </section>
 
-  <section class="panel" *ngIf="['fermentacion','secado','granos','lotes'].includes(routeKey)">
-    <h2>Consultar por lote</h2>
-    <form class="lookup" (ngSubmit)="routeKey==='lotes'?lookupCode():lookupLot()">
-      <input name="lookupId" [(ngModel)]="lookupId" [placeholder]="routeKey==='lotes'?'Código oficial de lote':'ID de lote'" required>
-      <button class="primary">Consultar</button>
-    </form>
+  <!-- Lot Lookup Panel (Specialized Modules) -->
+  <section class="cacao-card lookup-panel" *ngIf="['fermentacion', 'secado', 'granos', 'lotes'].includes(routeKey)">
+    <div class="lookup-inner">
+      <div class="lookup-label">
+        <span class="material-symbols-outlined">search</span>
+        <span>Consulta Rápida por {{ routeKey === 'lotes' ? 'Código de Lote' : 'ID de Lote' }}</span>
+      </div>
+      <form class="lookup-form" (ngSubmit)="routeKey === 'lotes' ? lookupCode() : lookupLot()">
+        <input 
+          name="lookupId" 
+          [(ngModel)]="lookupId" 
+          [placeholder]="routeKey === 'lotes' ? 'Ej. LOT-2026-001' : 'Ingresa ID numérico'" 
+          required 
+          class="form-input lookup-input" />
+        <button class="btn btn-primary">
+          <span class="material-symbols-outlined">travel_explore</span>
+          <span>Consultar</span>
+        </button>
+      </form>
+    </div>
   </section>
 
-  <section class="panel" *ngIf="detail">
-    <div class="heading"><h2>Detalle</h2><button class="refresh" type="button" (click)="detail=null">Cerrar</button></div>
-    <pre>{{detail | json}}</pre>
+  <!-- Modern Detail Inspector (Replaces raw JSON <pre>) -->
+  <section class="cacao-card detail-modal" *ngIf="detail">
+    <div class="panel-header detail-header">
+      <div class="panel-header-left">
+        <span class="material-symbols-outlined">visibility</span>
+        <h2>Ficha de Detalle de Registro</h2>
+      </div>
+      <button type="button" class="btn-close-panel" (click)="detail = null" title="Cerrar ficha">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-cell" *ngFor="let item of getDetailEntries()">
+        <span class="detail-key">{{ item[0] }}</span>
+        <span class="detail-val">{{ formatEntryValue(item[1]) }}</span>
+      </div>
+    </div>
   </section>
 
-  <section class="panel">
-    <h2>Registros</h2>
-    <p *ngIf="loading">Cargando datos del backend…</p>
-    <p *ngIf="!loading && !rows.length">No hay registros para mostrar.</p>
-    <div class="table-wrap" *ngIf="!loading && rows.length">
-      <table>
-        <thead><tr><th *ngFor="let key of keys(rows[0])">{{key}}</th><th>Acciones</th></tr></thead>
-        <tbody><tr *ngFor="let row of rows">
-          <td *ngFor="let key of keys(row)">{{value(row,key)}}</td>
-          <td class="actions">
-            <button *ngIf="['usuarios','proveedores','lotes','cajones','pedidos','packing'].includes(routeKey)" (click)="showDetail(row)">{{(routeKey==='usuarios'||routeKey==='proveedores')&&canWrite()?'Editar':'Ver detalle'}}</button>
-            <button *ngIf="(routeKey==='usuarios'||routeKey==='proveedores') && canWrite()" (click)="toggleActive(row)">{{row['activo']===false?'Activar':'Desactivar'}}</button>
-            <button *ngIf="routeKey==='pedidos' && row['estadoPedido']==='PENDIENTE' && canWrite()" (click)="confirmOrder(row)">Confirmar</button>
-            <button *ngIf="routeKey==='fermentacion' && row['lote']?.id && canWrite()" (click)="completeFermentation(row['lote'])">Completar lote</button>
-            <button *ngIf="routeKey==='cajones' && row['estado']!=='MANTENIMIENTO' && canWrite()" (click)="setBoxState(row,'MANTENIMIENTO')">Mantenimiento</button>
-            <button *ngIf="routeKey==='cajones' && row['estado']==='MANTENIMIENTO' && canWrite()" (click)="setBoxState(row,'DISPONIBLE')">Disponible</button>
-          </td>
-        </tr></tbody>
+  <!-- Records Table Card -->
+  <section class="cacao-card table-panel">
+    <div class="table-header-bar">
+      <div class="table-title-area">
+        <h2>Listado de Registros</h2>
+        <span class="cacao-badge badge-gray">{{ filteredRows.length }} {{ filteredRows.length === 1 ? 'registro' : 'registros' }}</span>
+      </div>
+
+      <!-- Live Search Filter -->
+      <div class="table-search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Buscar en la tabla..." 
+          class="table-search-input" />
+        <button *ngIf="searchQuery" (click)="searchQuery = ''" class="btn-clear-search">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="state-box" *ngIf="loading">
+      <span class="material-symbols-outlined spin">progress_activity</span>
+      <p>Cargando datos desde el servidor...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="state-box" *ngIf="!loading && !filteredRows.length">
+      <span class="material-symbols-outlined state-icon">inbox</span>
+      <h3>{{ searchQuery ? 'No se encontraron coincidencias' : 'No hay registros cargados' }}</h3>
+      <p>{{ searchQuery ? 'Intenta con otro término de búsqueda.' : 'Cuando ingreses nuevos datos, se listarán en esta tabla.' }}</p>
+    </div>
+
+    <!-- Modern Data Table -->
+    <div class="table-responsive" *ngIf="!loading && filteredRows.length">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th *ngFor="let key of keys(filteredRows[0])">{{ key }}</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows">
+            <td *ngFor="let key of keys(row)">
+              <!-- Render Activo as clean badge -->
+              <ng-container *ngIf="key === 'activo'">
+                <span class="cacao-badge" [class.badge-emerald]="row[key] !== false" [class.badge-rose]="row[key] === false">
+                  {{ row[key] === false ? 'Inactivo' : 'Activo' }}
+                </span>
+              </ng-container>
+
+              <!-- Render Estado as badge -->
+              <ng-container *ngIf="key === 'estado' || key === 'estadoPedido'">
+                <span class="cacao-badge" 
+                  [class.badge-emerald]="row[key] === 'DISPONIBLE' || row[key] === 'CONFIRMADO'"
+                  [class.badge-amber]="row[key] === 'PENDIENTE'"
+                  [class.badge-rose]="row[key] === 'MANTENIMIENTO'">
+                  {{ row[key] }}
+                </span>
+              </ng-container>
+
+              <!-- Normal text for others -->
+              <ng-container *ngIf="key !== 'activo' && key !== 'estado' && key !== 'estadoPedido'">
+                {{ value(row, key) }}
+              </ng-container>
+            </td>
+
+            <td class="td-actions">
+              <div class="action-buttons-group">
+                <button 
+                  *ngIf="['usuarios', 'proveedores', 'lotes', 'cajones', 'pedidos', 'packing'].includes(routeKey)" 
+                  type="button" 
+                  class="btn-row-action" 
+                  (click)="showDetail(row)"
+                  [title]="(routeKey === 'usuarios' || routeKey === 'proveedores') && canWrite() ? 'Editar fila' : 'Ver detalle'">
+                  <span class="material-symbols-outlined">{{ (routeKey === 'usuarios' || routeKey === 'proveedores') && canWrite() ? 'edit' : 'visibility' }}</span>
+                  <span>{{ (routeKey === 'usuarios' || routeKey === 'proveedores') && canWrite() ? 'Editar' : 'Detalle' }}</span>
+                </button>
+
+                <button 
+                  *ngIf="(routeKey === 'usuarios' || routeKey === 'proveedores') && canWrite()" 
+                  type="button" 
+                  class="btn-row-action" 
+                  [class.btn-row-danger]="row['activo'] !== false"
+                  (click)="toggleActive(row)">
+                  <span class="material-symbols-outlined">{{ row['activo'] === false ? 'toggle_on' : 'toggle_off' }}</span>
+                  <span>{{ row['activo'] === false ? 'Activar' : 'Desactivar' }}</span>
+                </button>
+
+                <button 
+                  *ngIf="routeKey === 'pedidos' && row['estadoPedido'] === 'PENDIENTE' && canWrite()" 
+                  type="button" 
+                  class="btn-row-action btn-row-success"
+                  (click)="confirmOrder(row)">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <span>Confirmar</span>
+                </button>
+
+                <button 
+                  *ngIf="routeKey === 'fermentacion' && row['lote']?.id && canWrite()" 
+                  type="button" 
+                  class="btn-row-action btn-row-success"
+                  (click)="completeFermentation(row['lote'])">
+                  <span class="material-symbols-outlined">task_alt</span>
+                  <span>Completar Lote</span>
+                </button>
+
+                <button 
+                  *ngIf="routeKey === 'cajones' && row['estado'] !== 'MANTENIMIENTO' && canWrite()" 
+                  type="button" 
+                  class="btn-row-action btn-row-warning"
+                  (click)="setBoxState(row, 'MANTENIMIENTO')">
+                  <span class="material-symbols-outlined">build</span>
+                  <span>Mantenimiento</span>
+                </button>
+
+                <button 
+                  *ngIf="routeKey === 'cajones' && row['estado'] === 'MANTENIMIENTO' && canWrite()" 
+                  type="button" 
+                  class="btn-row-action btn-row-success"
+                  (click)="setBoxState(row, 'DISPONIBLE')">
+                  <span class="material-symbols-outlined">check</span>
+                  <span>Disponible</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </section>

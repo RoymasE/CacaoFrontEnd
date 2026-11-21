@@ -1,7 +1,148 @@
 <header class="topbar">
-  <a class="brand" routerLink="/" aria-label="Cacao, inicio"><span class="brand-mark">C</span><span>cacao<span class="brand-dot">.</span></span></a>
-  <nav aria-label="Navegación principal">
-    <a *ngFor="let link of visibleLinks" [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact:link.path==='/'}">{{link.label}}</a>
-  </nav>
-  <span class="profile"><span class="avatar">{{ initials }}</span><a *ngIf="!username" routerLink="/acceso">Iniciar sesión</a><span *ngIf="username">{{ username }}<small class="role-label">{{roleLabel}}</small></span><button *ngIf="username" type="button" (click)="logout()">Salir</button></span>
+  <div class="topbar-inner">
+    <!-- Brand -->
+    <a class="brand" routerLink="/" (click)="closeMenus()" aria-label="Cacao Premium, inicio">
+      <div class="brand-badge">
+        <span class="material-symbols-outlined">eco</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">CACAO<span class="brand-accent">.</span></span>
+        <span class="brand-sub">AGROINDUSTRIA</span>
+      </div>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav" aria-label="Navegación principal" *ngIf="username">
+      <!-- Direct Link: Resumen -->
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item-link" (click)="closeMenus()">
+        <span class="material-symbols-outlined nav-icon">grid_view</span>
+        <span>Resumen</span>
+      </a>
+
+      <!-- Dropdown Groups -->
+      <div class="nav-dropdown-group" *ngFor="let group of visibleGroups">
+        <button 
+          type="button" 
+          class="dropdown-trigger" 
+          [class.active]="isGroupActive(group) || activeDropdown === group.id"
+          [attr.aria-expanded]="activeDropdown === group.id"
+          (click)="toggleDropdown(group.id, $event)">
+          <span class="material-symbols-outlined nav-icon">{{ group.icon }}</span>
+          <span>{{ group.label }}</span>
+          <span class="material-symbols-outlined chevron" [class.rotated]="activeDropdown === group.id">expand_more</span>
+        </button>
+
+        <div class="dropdown-menu" *ngIf="activeDropdown === group.id" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <span class="material-symbols-outlined">{{ group.icon }}</span>
+            <span>Módulos de {{ group.label }}</span>
+          </div>
+          <div class="dropdown-links">
+            <a 
+              *ngFor="let link of group.links" 
+              [routerLink]="link.path" 
+              routerLinkActive="active-sublink" 
+              (click)="closeMenus()"
+              class="dropdown-item">
+              <div class="dropdown-item-icon">
+                <span class="material-symbols-outlined">{{ link.icon || 'arrow_forward' }}</span>
+              </div>
+              <div class="dropdown-item-content">
+                <span class="dropdown-item-title">{{ link.label }}</span>
+                <span class="dropdown-item-desc" *ngIf="link.desc">{{ link.desc }}</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- User Profile & Actions -->
+    <div class="topbar-actions">
+      <!-- Logged In Profile -->
+      <ng-container *ngIf="username">
+        <div class="user-pill">
+          <div class="avatar" [title]="username">
+            {{ initials }}
+          </div>
+          <div class="user-meta">
+            <span class="user-name">{{ username }}</span>
+            <span class="role-badge" [class.badge-admin]="role === 'ADMIN'" [class.badge-gerente]="role === 'GERENTE'">
+              {{ roleLabel }}
+            </span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-logout" (click)="logout()" title="Cerrar sesión actual">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="btn-logout-text">Salir</span>
+        </button>
+      </ng-container>
+
+      <!-- Logged Out View -->
+      <a *ngIf="!username" routerLink="/acceso" class="btn-login">
+        <span class="material-symbols-outlined">login</span>
+        <span>Iniciar sesión</span>
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button 
+        *ngIf="username" 
+        type="button" 
+        class="mobile-toggle" 
+        (click)="toggleMobileMenu()" 
+        [attr.aria-label]="mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'">
+        <span class="material-symbols-outlined">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Offcanvas Drawer -->
+  <div class="mobile-drawer-backdrop" *ngIf="mobileMenuOpen" (click)="closeMenus()"></div>
+  <aside class="mobile-drawer" *ngIf="mobileMenuOpen">
+    <div class="mobile-drawer-header">
+      <div class="mobile-user-card">
+        <div class="avatar lg">{{ initials }}</div>
+        <div>
+          <div class="user-name">{{ username }}</div>
+          <div class="role-badge">{{ roleLabel }}</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close-drawer" (click)="closeMenus()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="mobile-drawer-body">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link" (click)="closeMenus()">
+        <span class="material-symbols-outlined">grid_view</span>
+        <span>Panel Principal (Resumen)</span>
+      </a>
+
+      <div class="mobile-group" *ngFor="let group of visibleGroups">
+        <div class="mobile-group-title">
+          <span class="material-symbols-outlined">{{ group.icon }}</span>
+          <span>{{ group.label }}</span>
+        </div>
+        <div class="mobile-group-links">
+          <a 
+            *ngFor="let link of group.links" 
+            [routerLink]="link.path" 
+            routerLinkActive="active" 
+            (click)="closeMenus()"
+            class="mobile-nav-sublink">
+            <span class="material-symbols-outlined">{{ link.icon || 'arrow_forward' }}</span>
+            <span>{{ link.label }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-drawer-footer">
+      <button type="button" class="btn-mobile-logout" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
 </header>

@@ -1,1 +1,108 @@
-<main class="page"><p class="eyebrow">PRODUCCIÓN E INVENTARIO</p><div class="title-row"><div><h1>Inventario de cacao</h1><p>Registra producción y consulta existencias disponibles para pedidos.</p></div></div><section class="empty-card"><span class="leaf">◇</span><h2>Secciones de producto</h2><p>El backend administra granos secos en la Sección 1 y polvo, manteca y mermas en la Sección 2.</p><div class="inventory-links"><a routerLink="/granos">Sección 1 · Granos secos <b>→</b></a><a routerLink="/derivados">Sección 2 · Polvo y derivados <b>→</b></a></div></section></main>
+<main class="cacao-page-container prod-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon-wrap">
+        <span class="material-symbols-outlined">inventory_2</span>
+      </div>
+      <div>
+        <span class="cacao-badge badge-cacao">Almacén & Producción</span>
+        <h1 class="page-title">Inventario Central de Cacao</h1>
+        <p class="page-subtitle">Gestión de existencias separada por secciones productivas para despacho internacional.</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/balance" class="btn btn-secondary">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span>Ver Balance de Masas</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Sections Cards Grid -->
+  <div class="inventory-grid">
+    <!-- Section 1: Granos Secos -->
+    <section class="cacao-card inventory-card">
+      <div class="card-badge-row">
+        <span class="cacao-badge badge-emerald">Sección 1 · Acopio de Granos</span>
+        <span class="section-tag">Exportación Marítima</span>
+      </div>
+
+      <div class="card-icon-hero">
+        <div class="icon-circle emerald">
+          <span class="material-symbols-outlined">grain</span>
+        </div>
+      </div>
+
+      <h2>Granos Secos de Cacao</h2>
+      <p class="card-description">
+        Pesajes finales tras el túnel de secado solar. Clasificación por grado de calidad (Grado 1 / Grado 2), empaque en sacos de yute de 60 kg y reserva para despachos marítimos.
+      </p>
+
+      <div class="card-specs">
+        <div class="spec-item">
+          <span class="spec-label">Humedad Objetivo</span>
+          <span class="spec-value">6.5% – 7.5%</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Presentación</span>
+          <span class="spec-value">Sacos de Yute 60kg</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Destino Principal</span>
+          <span class="spec-value">Packing & Aduanas</span>
+        </div>
+      </div>
+
+      <div class="card-action">
+        <a routerLink="/granos" class="btn btn-primary full-width">
+          <span class="material-symbols-outlined">table_view</span>
+          <span>Abrir Inventario de Granos</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 2: Polvo y Manteca -->
+    <section class="cacao-card inventory-card">
+      <div class="card-badge-row">
+        <span class="cacao-badge badge-cacao">Sección 2 · Procesamiento</span>
+        <span class="section-tag">Derivados Finos</span>
+      </div>
+
+      <div class="card-icon-hero">
+        <div class="icon-circle cacao">
+          <span class="material-symbols-outlined">cookie</span>
+        </div>
+      </div>
+
+      <h2>Polvo, Manteca y Derivados</h2>
+      <p class="card-description">
+        Molienda y prensado hidráulico de materia prima. Trazabilidad de rendimientos porcentuales para manteca pura de cacao, polvo desgrasado alcalinizado y control de mermas/cascarilla.
+      </p>
+
+      <div class="card-specs">
+        <div class="spec-item">
+          <span class="spec-label">Subproductos</span>
+          <span class="spec-value">Polvo y Manteca Pura</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Control de Mermas</span>
+          <span class="spec-value">Cascarilla & Residuo</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Aplicación</span>
+          <span class="spec-value">Chocolatería Gourmet</span>
+        </div>
+      </div>
+
+      <div class="card-action">
+        <a routerLink="/derivados" class="btn btn-cacao full-width">
+          <span class="material-symbols-outlined">table_view</span>
+          <span>Abrir Procesamiento y Polvo</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>

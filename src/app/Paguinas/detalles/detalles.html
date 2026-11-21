@@ -1,16 +1,110 @@
-<main class="home">
-  <section class="welcome">
-    <div class="welcome-copy"><p class="eyebrow">PANEL DE CONTROL · CACAO</p><h1>Del cacao a<br><em>grandes ideas.</em></h1><p>Producción, inventario y exportaciones en un solo lugar.</p><a *ngIf="can('lotes')" routerLink="/lotes">Registrar cosecha <span>→</span></a></div>
-    <div class="bean bean-one">✦</div><div class="bean bean-two">cacao</div><div class="bean bean-three"></div><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div>
+<main class="cacao-page-container home-page">
+  <!-- Hero Section -->
+  <section class="welcome-banner">
+    <div class="welcome-content">
+      <div class="welcome-tag">
+        <span class="cacao-badge badge-amber">Panel Principal</span>
+        <span class="user-greeting-badge">
+          <span class="material-symbols-outlined">badge</span>
+          {{ roleLabel }}
+        </span>
+      </div>
+      <h1>Bienvenido, <em>{{ username }}</em></h1>
+      <p class="welcome-desc">Control integral de cosecha, fermentación en cajones, curvas de secado, existencias y exportación internacional.</p>
+      
+      <div class="welcome-actions">
+        <a *ngIf="can('lotes')" routerLink="/lotes" class="btn btn-primary">
+          <span class="material-symbols-outlined">add_circle</span>
+          <span>Registrar Cosecha</span>
+        </a>
+        <a *ngIf="can('pedidos')" routerLink="/pedidos" class="btn btn-secondary">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span>Ver Pedidos</span>
+        </a>
+        <a *ngIf="can('balance')" routerLink="/balance" class="btn btn-cacao">
+          <span class="material-symbols-outlined">analytics</span>
+          <span>Balance de Masas</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="welcome-graphic">
+      <div class="graphic-circle">
+        <span class="material-symbols-outlined hero-icon">eco</span>
+      </div>
+      <div class="graphic-chip chip-1">
+        <span class="material-symbols-outlined">verified</span>
+        <span>100% Fino de Aroma</span>
+      </div>
+      <div class="graphic-chip chip-2">
+        <span class="material-symbols-outlined">public</span>
+        <span>Trazabilidad Global</span>
+      </div>
+    </div>
   </section>
-  <section class="quick">
-    <div class="quick-heading"><div><p class="eyebrow">INDICADORES</p><h2>Resumen de operaciones</h2></div><span *ngIf="loading">CARGANDO…</span></div>
-    <p *ngIf="error">{{error}}</p>
-    <div class="cards" *ngIf="!loading && summary"><article class="card" *ngFor="let metric of metrics()"><span><b>{{metric[0]}}</b><small>{{metric[1]}}</small></span></article></div>
+
+  <!-- Key Metrics Section -->
+  <section class="section-block">
+    <div class="section-header">
+      <div>
+        <span class="section-eyebrow">INDICADORES CLAVE</span>
+        <h2>Resumen Operativo</h2>
+      </div>
+      <div *ngIf="loading" class="loading-tag">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <span>Cargando datos...</span>
+      </div>
+    </div>
+
+    <div class="cacao-alert cacao-alert-error" *ngIf="error">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="metrics-grid" *ngIf="!loading && summary">
+      <div class="metric-card" *ngFor="let m of metricsList()" [class.metric-highlight]="m.highlight">
+        <div class="metric-icon-wrap" [attr.data-tone]="m.tone">
+          <span class="material-symbols-outlined">{{ m.icon }}</span>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">{{ m.label }}</span>
+          <span class="metric-value">{{ m.value }}</span>
+        </div>
+      </div>
+    </div>
   </section>
-  <section class="quick">
-    <div class="quick-heading"><div><p class="eyebrow">ACCESOS SEGÚN TU ROL</p><h2>Operaciones disponibles</h2></div><span>{{links.length}} MÓDULOS</span></div>
-    <div class="cards"><a class="card" *ngFor="let link of visibleLinks" [routerLink]="link.path"><span class="icon" [class.green]="link.tone==='green'" [class.sand]="link.tone==='sand'">{{link.icon}}</span><span><b>{{link.title}}</b><small>{{link.desc}}</small></span><strong>→</strong></a></div>
+
+  <!-- Operations Quick Access -->
+  <section class="section-block">
+    <div class="section-header">
+      <div>
+        <span class="section-eyebrow">MÓDULOS DEL SISTEMA</span>
+        <h2>Operaciones Habilitadas para tu Perfil</h2>
+      </div>
+      <span class="cacao-badge badge-green">{{ visibleLinks.length }} MÓDULOS ACTIVOS</span>
+    </div>
+
+    <div class="modules-grid">
+      <a class="module-card" *ngFor="let link of visibleLinks" [routerLink]="link.path">
+        <div class="module-icon" [class.tone-green]="link.tone === 'green'" [class.tone-sand]="link.tone === 'sand'">
+          <span class="material-symbols-outlined">{{ link.icon }}</span>
+        </div>
+        <div class="module-body">
+          <h3 class="module-title">{{ link.title }}</h3>
+          <p class="module-desc">{{ link.desc }}</p>
+        </div>
+        <span class="material-symbols-outlined module-arrow">arrow_forward</span>
+      </a>
+    </div>
   </section>
-  <footer>Hecho con dedicación <span>✦</span> para crecer juntos.</footer>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <div class="footer-brand">
+      <span class="material-symbols-outlined">eco</span>
+      <b>CACAO PREMIUM AGROINDUSTRIAL</b>
+    </div>
+    <p>Trazabilidad garantizada para exportación marítima con estándares internacionales de calidad.</p>
+  </footer>
 </main>
