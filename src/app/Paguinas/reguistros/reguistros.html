@@ -1,28 +1,231 @@
-<main class="page">
-  <div class="heading"><div><p class="eyebrow">RELACIONES</p><h1>Clientes</h1><p class="subheading">Personas y organizaciones que hacen crecer el negocio.</p></div><span class="count"><b>{{ customers.length }}</b> registros</span></div>
-  <div class="layout">
-    <section class="panel form-panel">
-      <div class="panel-title"><div><h2>{{ editingId === null ? 'Nuevo cliente' : 'Editar cliente' }}</h2><p>Completa la información de contacto.</p></div><span class="plus">{{ editingId === null ? '+' : '✎' }}</span></div>
-      <form (ngSubmit)="guardar()" #customerForm="ngForm">
-        <label for="nombreEmpresa">Empresa importadora <i>*</i></label><input id="nombreEmpresa" name="nombreEmpresa" [(ngModel)]="draft.nombreEmpresa" required maxlength="160" placeholder="Ej. Cacao del Norte GmbH">
-        <label for="paisDestino">País de destino <i>*</i></label><input id="paisDestino" name="paisDestino" [(ngModel)]="draft.paisDestino" required maxlength="100" placeholder="Alemania">
-        <label for="personaContacto">Persona de contacto</label><input id="personaContacto" name="personaContacto" [(ngModel)]="draft.personaContacto" maxlength="120" placeholder="Nombre de contacto">
-        <label for="email">Correo electrónico</label><input id="email" name="email" [(ngModel)]="draft.email" email maxlength="160" placeholder="compras@empresa.com">
-        <label for="telefono">Teléfono</label><input id="telefono" name="telefono" [(ngModel)]="draft.telefono" maxlength="40" placeholder="+51 999 000 000">
-        <label for="direccionFiscal">Dirección fiscal</label><input id="direccionFiscal" name="direccionFiscal" [(ngModel)]="draft.direccionFiscal" maxlength="240" placeholder="Dirección comercial">
-        <div class="actions"><button class="primary" type="submit" [disabled]="customerForm.invalid || guardando">{{ guardando ? 'Guardando…' : editingId === null ? 'Agregar cliente' : 'Guardar cambios' }} <span>→</span></button><button *ngIf="editingId !== null" type="button" class="cancel" (click)="cancelar()">Cancelar</button></div>
+<main class="cacao-page-container reg-page">
+  <!-- Top Heading -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon-wrap">
+        <span class="material-symbols-outlined">corporate_fare</span>
+      </div>
+      <div>
+        <span class="cacao-badge badge-cacao">Relaciones Comerciales</span>
+        <h1 class="page-title">Directorio de Clientes</h1>
+        <p class="page-subtitle">Administra importadores internacionales, contratos y destinos de exportación.</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="cacao-badge badge-green">{{ customers.length }} Clientes Registrados</span>
+      <button class="btn btn-secondary" type="button" (click)="recargar()" title="Actualizar lista">
+        <span class="material-symbols-outlined" [class.spin]="cargando">sync</span>
+        <span>Actualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="cacao-alert cacao-alert-success" *ngIf="notice">
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>{{ notice }}</span>
+  </div>
+
+  <div class="cacao-alert cacao-alert-error" *ngIf="error">
+    <span class="material-symbols-outlined">error</span>
+    <span>{{ error }}</span>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="recargar()" style="margin-left: auto;">Reintentar</button>
+  </div>
+
+  <!-- Two Column Layout: Form + Directory -->
+  <div class="layout-grid">
+    <!-- Form Panel -->
+    <section class="cacao-card form-card">
+      <div class="card-header">
+        <div class="card-header-title">
+          <span class="material-symbols-outlined">{{ editingId === null ? 'person_add' : 'edit_document' }}</span>
+          <h2>{{ editingId === null ? 'Nuevo Cliente' : 'Editar Cliente' }}</h2>
+        </div>
+        <span class="form-mode-tag">{{ editingId === null ? 'Creación' : 'Edición' }}</span>
+      </div>
+
+      <form (ngSubmit)="guardar()" #customerForm="ngForm" class="customer-form">
+        <div class="form-group">
+          <label for="nombreEmpresa">Empresa Importadora <span class="req">*</span></label>
+          <input 
+            id="nombreEmpresa" 
+            name="nombreEmpresa" 
+            [(ngModel)]="draft.nombreEmpresa" 
+            required 
+            maxlength="160" 
+            placeholder="Ej. Cacao Gourmet Imports GmbH" 
+            class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="paisDestino">País de Destino <span class="req">*</span></label>
+          <input 
+            id="paisDestino" 
+            name="paisDestino" 
+            [(ngModel)]="draft.paisDestino" 
+            required 
+            maxlength="100" 
+            placeholder="Ej. Alemania, Suiza, Japón..." 
+            class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="personaContacto">Persona de Contacto</label>
+          <input 
+            id="personaContacto" 
+            name="personaContacto" 
+            [(ngModel)]="draft.personaContacto" 
+            maxlength="120" 
+            placeholder="Nombre del encargado de compras" 
+            class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input 
+            id="email" 
+            name="email" 
+            [(ngModel)]="draft.email" 
+            email 
+            maxlength="160" 
+            placeholder="compras@empresa.com" 
+            class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono Internacional</label>
+          <input 
+            id="telefono" 
+            name="telefono" 
+            [(ngModel)]="draft.telefono" 
+            maxlength="40" 
+            placeholder="+49 30 1234567" 
+            class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="direccionFiscal">Dirección Fiscal / Entrega</label>
+          <input 
+            id="direccionFiscal" 
+            name="direccionFiscal" 
+            [(ngModel)]="draft.direccionFiscal" 
+            maxlength="240" 
+            placeholder="Calle, número, código postal, ciudad" 
+            class="form-input" />
+        </div>
+
+        <div class="form-actions-row">
+          <button class="btn btn-primary btn-save" type="submit" [disabled]="customerForm.invalid || guardando">
+            <span class="material-symbols-outlined">{{ guardando ? 'hourglass_top' : 'save' }}</span>
+            <span>{{ guardando ? 'Guardando...' : (editingId === null ? 'Registrar Cliente' : 'Guardar Cambios') }}</span>
+          </button>
+          <button *ngIf="editingId !== null" type="button" class="btn btn-secondary" (click)="cancelar()">
+            Cancelar
+          </button>
+        </div>
       </form>
-      <p class="hint"><span>✦</span> Los campos con * son obligatorios.</p>
     </section>
-    <section class="panel list-panel">
-      <div class="list-head"><div><h2>Directorio</h2><p>Consulta y administra tus contactos.</p></div><button class="refresh" type="button" (click)="recargar()" aria-label="Actualizar lista">↻</button></div>
-      <div class="search"><span>⌕</span><input name="search" [(ngModel)]="query" placeholder="Buscar cliente…"></div>
-      <div *ngIf="error" class="alert error" role="alert"><span>!</span><div>{{ error }}</div><button type="button" (click)="recargar()">Reintentar</button></div>
-      <div *ngIf="notice" class="alert success" role="status">✓ {{ notice }}</div>
-      <div *ngIf="cargando" class="empty"><span class="loader"></span><p>Conectando con el backend…</p></div>
-      <div *ngIf="!cargando && !error && filtrados.length === 0" class="empty"><span class="empty-icon">⌕</span><h3>{{ query ? 'Sin resultados' : 'Aún no hay clientes' }}</h3><p>{{ query ? 'Prueba con otro nombre o correo.' : 'Cuando agregues un cliente, aparecerá aquí.' }}</p></div>
-      <div *ngIf="!cargando && filtrados.length" class="table-wrap"><table><thead><tr><th>EMPRESA</th><th>DESTINO</th><th>CONTACTO</th><th>ESTADO</th><th></th></tr></thead><tbody><tr *ngFor="let customer of filtrados"><td><div class="person"><span class="initial">{{ customer.nombreEmpresa.charAt(0).toUpperCase() }}</span><span><b>{{ customer.nombreEmpresa }}</b><small>{{ customer.email }}</small></span></div></td><td>{{ customer.paisDestino || '—' }}</td><td>{{ customer.personaContacto || customer.telefono || '—' }}</td><td>{{ customer.activo === false ? 'Inactivo' : 'Activo' }}</td><td class="row-actions"><button type="button" title="Editar" (click)="editar(customer)">Editar</button><button type="button" title="Cambiar estado" (click)="eliminar(customer)">{{ customer.activo === false ? 'Activar' : 'Desactivar' }}</button></td></tr></tbody></table></div>
-      <div class="list-foot">Mostrando <b>{{ filtrados.length }}</b> de <b>{{ customers.length }}</b> clientes</div>
+
+    <!-- Directory Panel -->
+    <section class="cacao-card list-card">
+      <div class="card-header">
+        <div class="card-header-title">
+          <span class="material-symbols-outlined">contacts</span>
+          <h2>Directorio Activo</h2>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="directory-search">
+          <span class="material-symbols-outlined">search</span>
+          <input 
+            name="search" 
+            [(ngModel)]="query" 
+            placeholder="Buscar por empresa, país o correo..." 
+            class="search-input" />
+          <button *ngIf="query" (click)="query = ''" class="btn-clear">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="state-box" *ngIf="cargando">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>Cargando clientes desde el servidor...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="state-box" *ngIf="!cargando && filtrados.length === 0">
+        <span class="material-symbols-outlined state-icon">search_off</span>
+        <h3>{{ query ? 'Sin resultados' : 'Aún no hay clientes registrados' }}</h3>
+        <p>{{ query ? 'Prueba con otro término de búsqueda.' : 'Utiliza el formulario de la izquierda para agregar el primer cliente.' }}</p>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive" *ngIf="!cargando && filtrados.length">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Empresa Importadora</th>
+              <th>Destino</th>
+              <th>Contacto</th>
+              <th>Estado</th>
+              <th class="th-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let customer of filtrados">
+              <td>
+                <div class="company-cell">
+                  <div class="company-initial">{{ customer.nombreEmpresa.charAt(0).toUpperCase() }}</div>
+                  <div>
+                    <span class="company-name">{{ customer.nombreEmpresa }}</span>
+                    <span class="company-email">{{ customer.email || 'Sin correo registrado' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="country-pill">
+                  <span class="material-symbols-outlined">flight_takeoff</span>
+                  {{ customer.paisDestino || '—' }}
+                </span>
+              </td>
+              <td>
+                <div class="contact-info">
+                  <span class="contact-person">{{ customer.personaContacto || '—' }}</span>
+                  <span class="contact-phone" *ngIf="customer.telefono">{{ customer.telefono }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="cacao-badge" [class.badge-emerald]="customer.activo !== false" [class.badge-rose]="customer.activo === false">
+                  {{ customer.activo === false ? 'Inactivo' : 'Activo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="action-buttons-group">
+                  <button type="button" class="btn-row-action" (click)="editar(customer)" title="Editar información">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Editar</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn-row-action" 
+                    [class.btn-row-danger]="customer.activo !== false"
+                    (click)="eliminar(customer)" 
+                    [title]="customer.activo === false ? 'Activar cliente' : 'Desactivar cliente'">
+                    <span class="material-symbols-outlined">{{ customer.activo === false ? 'toggle_on' : 'toggle_off' }}</span>
+                    <span>{{ customer.activo === false ? 'Activar' : 'Desactivar' }}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="list-footer" *ngIf="!cargando && filtrados.length">
+        Mostrando <b>{{ filtrados.length }}</b> de <b>{{ customers.length }}</b> clientes registrados
+      </div>
     </section>
   </div>
 </main>
